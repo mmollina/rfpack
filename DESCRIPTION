@@ -1,8 +1,9 @@
 Package: rfpack
-Title: What the Package Does (one line, title case)
+Title: Computes recombination fraction in experimental populations
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: person("Marcelo", "Mollinari", email = "mmollina@gmail.com", role = c("aut", "cre"))
+Description: Computes recombination fraction in experimental populations: backcross, F2 and outcrossing species
 Depends: R (>= 3.2.2)
-License: What license is it under?
-LazyData: true
+License: GPL (>= 3.0)
+Imports: Rcpp (>= 0.12.1), onemap, fields
+LinkingTo: Rcpp

@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include <R_ext/PrtUtil.h>
 using namespace Rcpp;
 using namespace std;
 #define TOL 1e-6

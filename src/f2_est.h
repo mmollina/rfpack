@@ -1,6 +1,5 @@
 #include <Rcpp.h>
 using namespace Rcpp;
-using namespace std;
 
 Rcpp::NumericVector est_rf_C_C(std::vector<int> k_sub,
 			       std::vector<int> k1_sub,

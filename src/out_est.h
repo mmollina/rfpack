@@ -1,7 +1,12 @@
 #include <Rcpp.h>
+#include <R_ext/PrtUtil.h>
 #include "utils.h"
 using namespace Rcpp;
 using namespace std;
+#define TOL 1e-05
+#define LN3 1.098612288668109
+#define LN4 1.38629436111989
+#define LN_75 -0.28768207245178
 
 Rcpp::NumericVector rf_A_A(Rcpp::NumericMatrix n,
 			     int n_ind,

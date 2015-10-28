@@ -1,13 +1,23 @@
 #include <Rcpp.h>
+#include <R_ext/PrtUtil.h>
 #include "out_est.h"
+#include "utils.h"
 using namespace Rcpp;
 using namespace std;
 
-SEXP est_rf_out(NumericVector x, NumericVector segreg_type, int n_ind) {
-  int n_mar=((int)x.size()/n_ind), k1, k2;
+RcppExport SEXP est_rf_out(SEXP geno_R, 
+			   SEXP segreg_type_R, 
+			   SEXP n_ind_R, 
+			   SEXP bar_width_R)
+{
+  int n_ind = Rcpp::as<int>(n_ind_R);
+  int bar_width = Rcpp::as<int>(bar_width_R);
+  Rcpp::NumericVector segreg_type = Rcpp::as<Rcpp::NumericVector>(segreg_type_R);
+  Rcpp::NumericVector geno = Rcpp::as<Rcpp::NumericVector>(geno_R);
+  int n_mar=((int)geno.size()/n_ind), k1, k2;
   NumericMatrix n(5,5);
   NumericVector r(8);
-  NumericMatrix r1(n_mar,n_mar);  
+  NumericMatrix r1(n_mar,n_mar);
   NumericMatrix r2(n_mar,n_mar);
   NumericMatrix r3(n_mar,n_mar);
   NumericMatrix r4(n_mar,n_mar);
@@ -16,13 +26,13 @@ SEXP est_rf_out(NumericVector x, NumericVector segreg_type, int n_ind) {
       R_CheckUserInterrupt(); /* check for ^C */
       for(int j=(i+1); j  < n_mar; j++)
         {
-	  std::vector<int> k_sub(&x[i*n_ind],&x[i*n_ind+n_ind]);
-	  std::vector<int> k1_sub(&x[j*n_ind],&x[j*n_ind+n_ind]);	     
+	  std::vector<int> k_sub(&geno[i*n_ind],&geno[i*n_ind+n_ind]);
+	  std::vector<int> k1_sub(&geno[j*n_ind],&geno[j*n_ind+n_ind]);
 	  std::fill(n.begin(), n.end(), 0);
 	  std::fill(r.begin(), r.end(), 0);
 	  for(int k=0; k < n_ind; k++)
 	    {
-	      if(k_sub[k]==1) 
+	      if(k_sub[k]==1)
 		{
 		  if (k1_sub[k]==1) n(1,1)++;
 		  else if (k1_sub[k]==2) n(1,2)++;
@@ -30,7 +40,7 @@ SEXP est_rf_out(NumericVector x, NumericVector segreg_type, int n_ind) {
 		  else if (k1_sub[k]==4) n(1,4)++;
 		  else n(0,0)++;
 		}
-	      else if(k_sub[k]==2) 
+	      else if(k_sub[k]==2)
 		{
 		  if (k1_sub[k]==1) n(2,1)++;
 		  else if (k1_sub[k]==2) n(2,2)++;
@@ -38,7 +48,7 @@ SEXP est_rf_out(NumericVector x, NumericVector segreg_type, int n_ind) {
 		  else if (k1_sub[k]==4) n(2,4)++;
 		  else n(0,0)++;
 		}
-	      else if(k_sub[k]==3) 
+	      else if(k_sub[k]==3)
 		{
 		  if (k1_sub[k]==1) n(3,1)++;
 		  else if (k1_sub[k]==2) n(3,2)++;
@@ -46,7 +56,7 @@ SEXP est_rf_out(NumericVector x, NumericVector segreg_type, int n_ind) {
 		  else if (k1_sub[k]==4) n(3,4)++;
 		  else n(0,0)++;
 		}
-	      else if(k_sub[k]==4) 
+	      else if(k_sub[k]==4)
 		{
 		  if (k1_sub[k]==1) n(4,1)++;
 		  else if (k1_sub[k]==2) n(4,2)++;
@@ -60,7 +70,7 @@ SEXP est_rf_out(NumericVector x, NumericVector segreg_type, int n_ind) {
 	  switch(k1){
 	  case 1:
 	    switch(k2){
-	    case 1: 
+	    case 1:
 	      r=rf_A_A(n, n_ind, n(0,0)); 	      /*Markers A - A */
 	      break;
 	    case 2:
@@ -85,173 +95,173 @@ SEXP est_rf_out(NumericVector x, NumericVector segreg_type, int n_ind) {
 	    break;
 	  case 2:
 	    switch(k2){
-	    case 1: 
+	    case 1:
 	      n=transpose_counts(n);
 	      r=rf_A_B1(n,n_ind, n(0,0));	      /*Markers B1 - A*/
 	      break;
-	    case 2: 
+	    case 2:
 	      r=rf_B1_B1(n,n_ind, n(0,0));	      /*Markers B1 - B1*/
-	      break;	    
-	    case 3: 
+	      break;
+	    case 3:
 	      r=rf_B1_B2(n,n_ind, n(0,0));	      /*Markers B1 - B2*/
-	      break;	    
-	    case 4: 
+	      break;
+	    case 4:
 	      r=rf_B1_B3(n,n_ind, n(0,0));	      /*Markers B1 - B3*/
-	      break;	    
-	    case 5: 
+	      break;
+	    case 5:
 	      r=rf_B1_C(n,n_ind, n(0,0));	      /*Markers B1 - c*/
-	      break;	    
-	    case 6: 
+	      break;
+	    case 6:
 	      r=rf_B1_D1(n,n_ind, n(0,0));	      /*Markers B1 - D1*/
-	      break;	    
-	    case 7: 
+	      break;
+	    case 7:
 	      r=rf_B1_D2(n,n_ind, n(0,0));	      /*Markers B1 - D2*/
-	      break;	    
+	      break;
 	    }
 	    break;
 	  case 3:
 	    switch(k2){
-	    case 1: 
+	    case 1:
 	      n=transpose_counts(n);
 	      r=rf_A_B2(n,n_ind, n(0,0));	      /*Markers B2 - A*/
-	      break;	    
-	    case 2: 
+	      break;
+	    case 2:
 	      n=transpose_counts(n);
 	      r=rf_B1_B2(n,n_ind, n(0,0));	      /*Markers B2 - B1*/
-	      break;	    
-	    case 3: 
+	      break;
+	    case 3:
 	      r=rf_B2_B2(n,n_ind, n(0,0));	      /*Markers B2 - B2*/
-	      break;	    
-	    case 4: 
+	      break;
+	    case 4:
 	      r=rf_B2_B3(n,n_ind, n(0,0));	      /*Markers B2 - B3*/
-	      break;	    
-	    case 5: 
+	      break;
+	    case 5:
 	      r=rf_B2_C(n,n_ind, n(0,0));	      /*Markers B2 - C*/
 	      break;
-	    case 6: 
+	    case 6:
 	      r=rf_B2_D1(n,n_ind, n(0,0));	      /*Markers B2 - D1*/
 	      break;
-	    case 7: 
+	    case 7:
 	      r=rf_B2_D2(n,n_ind, n(0,0));	      /*Markers B2 - D2*/
-	      break;	    
+	      break;
 	    }
 	    break;
 	  case 4:
 	    switch(k2){
-	    case 1: 
+	    case 1:
 	      n=transpose_counts(n);
 	      r=rf_A_B3(n,n_ind, n(0,0));	      /*Markers B3 - A*/
-	      break;	    
-	    case 2: 
+	      break;
+	    case 2:
 	      n=transpose_counts(n);
 	      r=rf_B1_B3(n,n_ind, n(0,0));	      /*Markers B3 - B1*/
-	      break;	    	      
-	    case 3: 
+	      break;
+	    case 3:
 	      n=transpose_counts(n);
 	      r=rf_B2_B3(n,n_ind, n(0,0));	      /*Markers B3 - B2*/
-	      break;	    	      
-	    case 4: 
+	      break;
+	    case 4:
 	      r=rf_B3_B3(n,n_ind, n(0,0));	      /*Markers B3 - B3*/
-	      break;	    	      
-	    case 5: 
+	      break;
+	    case 5:
 	      r=rf_B3_C(n,n_ind, n(0,0));	      /*Markers B3 - C*/
 	      break;
-	    case 6: 
+	    case 6:
 	      r=rf_B3_D1(n,n_ind, n(0,0));	      /*Markers B3 - D1*/
 	      break;
-	    case 7: 
+	    case 7:
 	      r=rf_B3_D2(n,n_ind, n(0,0));	      /*Markers B3 - D2*/
 	      break;
 	    }
 	    break;
 	  case 5:
 	    switch(k2){
-	    case 1: 
+	    case 1:
 	      n=transpose_counts(n);
 	      r=rf_A_C(n,n_ind, n(0,0));	      /*Markers C - A*/
-	      break;	    
-	    case 2: 
+	      break;
+	    case 2:
 	      n=transpose_counts(n);
 	      r=rf_B1_C(n,n_ind, n(0,0));	      /*Markers C - B1*/
-	      break;	    
-	    case 3: 
+	      break;
+	    case 3:
 	      n=transpose_counts(n);
 	      r=rf_B2_C(n,n_ind, n(0,0));	      /*Markers C - B2*/
-	      break;	    
-	    case 4: 
+	      break;
+	    case 4:
 	      n=transpose_counts(n);
 	      r=rf_B3_C(n,n_ind, n(0,0));	      /*Markers C - B3*/
-	      break;	    
-	    case 5: 
+	      break;
+	    case 5:
 	      r=rf_C_C(n,n_ind, n(0,0));	      /*Markers C - C*/
-	      break;	    
-	    case 6: 
+	      break;
+	    case 6:
 	      r=rf_C_D1(n,n_ind, n(0,0));	      /*Markers C - D1*/
 	      break;
-	    case 7: 
+	    case 7:
 	      r=rf_C_D2(n,n_ind, n(0,0));	      /*Markers C - D2*/
 	      break;
 	    }
 	    break;
 	  case 6:
 	    switch(k2){
-	    case 1: 
+	    case 1:
 	      n=transpose_counts(n);
 	      r=rf_A_D1(n,n_ind, n(0,0));	      /*Markers D1 - A*/
-	      break;	    
-	    case 2: 
+	      break;
+	    case 2:
 	      n=transpose_counts(n);
 	      r=rf_B1_D1(n,n_ind, n(0,0));	      /*Markers D1 - B1*/
-	      break;	    
-	    case 3: 
+	      break;
+	    case 3:
 	      n=transpose_counts(n);
 	      r=rf_B2_D1(n,n_ind, n(0,0));	      /*Markers D1 - B1*/
-	      break;	    
-	    case 4: 
+	      break;
+	    case 4:
 	      n=transpose_counts(n);
 	      r=rf_B3_D1(n,n_ind, n(0,0));	      /*Markers D1 - B3*/
-	      break;	    
-	    case 5: 
+	      break;
+	    case 5:
 	      n=transpose_counts(n);
 	      r=rf_C_D1(n,n_ind, n(0,0));	      /*Markers D1 - C*/
-	      break;	    
-	    case 6: 
+	      break;
+	    case 6:
 	      r=rf_D1_D1(n,n_ind, n(0,0));	      /*Markers D1 - D1*/
-	      break;	   
-	    case 7: 
+	      break;
+	    case 7:
 	      r= rep( NumericVector::get_na(), 8 );   /*Markers D1 - D2 - Impossible to compute*/
-	      break;	    
+	      break;
 	    }
 	    break;
 	  case 7:
 	    switch(k2){
-	    case 1: 
+	    case 1:
 	      n=transpose_counts(n);
 	      r=rf_A_D2(n,n_ind, n(0,0));	      /*Markers D2 - A*/
-	      break;	    
-	    case 2: 
+	      break;
+	    case 2:
 	      n=transpose_counts(n);
 	      r=rf_B1_D2(n,n_ind, n(0,0));	      /*Markers D2 -  B1*/
 	      break;
-	    case 3: 
+	    case 3:
 	      n=transpose_counts(n);
 	      r=rf_B2_D2(n,n_ind, n(0,0));	      /*Markers D2 -  B2*/
-	      break;	    
-	    case 4: 
+	      break;
+	    case 4:
 	      n=transpose_counts(n);
 	      r=rf_B3_D2(n,n_ind, n(0,0));	      /*Markers D2 -  B3*/
-	      break;	    
-	    case 5: 
+	      break;
+	    case 5:
 	      n=transpose_counts(n);
 	      r=rf_C_D2(n,n_ind, n(0,0));	      /*Markers D2 -  C*/
-	      break;	
-	    case 6: 
+	      break;
+	    case 6:
 	      r= rep( NumericVector::get_na(), 8 );   /*Markers D2 -  D1 - Impossible to compute*/
-	      break;	
-	    case 7: 
+	      break;
+	    case 7:
 	      n=transpose_counts(n);
 	      r=rf_D2_D2(n,n_ind, n(0,0));	      /*Markers D2 -  D2*/
-	      break;	
+	      break;
 	    }
 	    break;
 	  }

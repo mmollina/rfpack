@@ -1,10 +1,20 @@
 #include <Rcpp.h>
+#include <R_ext/PrtUtil.h>
 #include "f2_est.h"
+#include "utils.h"
 using namespace Rcpp;
 using namespace std;
 
-SEXP est_rf_f2(NumericVector x, NumericVector type, int n_ind) {
-  int n_mar=((int)x.size()/n_ind), k1, k2;
+RcppExport SEXP est_rf_f2(SEXP geno_R, 
+			  SEXP segreg_type_R, 
+			  SEXP n_ind_R, 
+			  SEXP bar_width_R)
+{
+  int n_ind = Rcpp::as<int>(n_ind_R);
+  int bar_width = Rcpp::as<int>(bar_width_R);
+  Rcpp::NumericVector segreg_type = Rcpp::as<Rcpp::NumericVector>(segreg_type_R);
+  Rcpp::NumericVector geno = Rcpp::as<Rcpp::NumericVector>(geno_R);\
+  int n_mar=((int)geno.size()/n_ind), k1, k2;
   NumericMatrix r(n_mar, n_mar);
   Rcpp::NumericVector rtemp(2);   
   for(int i=0; i < n_mar-1; i++)
@@ -12,9 +22,9 @@ SEXP est_rf_f2(NumericVector x, NumericVector type, int n_ind) {
       R_CheckUserInterrupt(); // check for ^C 
       for(int j=(i+1); j  < n_mar; j++)
         {
-	  std::vector<int> k_sub(&x[i*n_ind],&x[i*n_ind+n_ind]);
-	  std::vector<int> k1_sub(&x[j*n_ind],&x[j*n_ind+n_ind]);
-	  k1=type(i); k2=type(j);
+	  std::vector<int> k_sub(&geno[i*n_ind],&geno[i*n_ind+n_ind]);
+	  std::vector<int> k1_sub(&geno[j*n_ind],&geno[j*n_ind+n_ind]);
+	  k1=segreg_type(i); k2=segreg_type(j);
 	  // Rcpp::Rcout << k1 << "--" << k2 << "\n";
 	  switch(k1){
 	  case 1: //C
