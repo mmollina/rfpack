@@ -83,6 +83,7 @@ RcppExport SEXP est_rf_f2(SEXP geno_R,
 	    }
 	    break;
 	  }
+	  if(rtemp(0) > 0.5) rtemp(0)=0.5;
 	  r(j,i)=rtemp(0);
 	  r(i,j)=rtemp(1);
 	  rtemp(0)=rtemp(1)=0;
